@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>DrawBox v0.1.0</title>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function()
+			{
+				var canvas = document.getElementById('drawbox');
+
+				if (canvas.getContext)
+				{
+					var context = canvas.getContext('2d');
+				}
+				else
+				{
+					alert('Your browser doesn\'t support canvas.');
+				}
+
+				var drawing = false;
+				var offsetX = $('#drawbox').attr('offsetLeft');
+				var offsetY = $('#drawbox').attr('offsetTop');
+
+				$('#drawbox').mousedown(function(e)
+				{
+					drawingStart(e);
+				});
+
+				$('#drawbox').mousemove(function(e)
+				{
+					drawingMove(e);
+				});
+
+				$('#drawbox').mouseup(function()
+				{
+					drawingStop();
+				});
+					
+				function drawingStart(e)
+				{
+					if (typeof(event) != "undefined")
+					{
+						e = event.touches.item(0);
+					}
+
+					drawing = true;
+					context.moveTo(e.clientX - offsetX, e.clientY - offsetY);
+				}
+					
+				function drawingMove(e)
+				{
+					e.preventDefault();
+					
+					if (typeof(event) != "undefined")
+					{
+						e = event.touches.item(0);
+					}
+
+					if (drawing == true)
+					{
+						context.underInteractionEnabled = true;
+						context.lineTo(e.clientX - offsetX, e.clientY - offsetY);
+						context.strokeStyle = '#000';
+						context.stroke();
+					}
+				}
+
+				function drawingStop()
+				{	
+					drawing = false;
+				}
+
+				// iPad / Touch System events
+				$('#drawbox').bind('touchstart',  function(e) { drawingStart(e); });
+				$('#drawbox').bind('touchmove',   function(e) { drawingMove(e);  });
+				$('#drawbox').bind('touchend',    function()  { drawingStop();   });
+				$('#drawbox').bind('touchcancel', function()  { drawingStop();   });
+			});
+		</script>
+	</head>
+	<body>
+		<h1>DrawBox v0.1.0</h1>
+		<canvas id="drawbox" width="600" height="200" style="border:1px solid #ccc" onclick="void(1)">
+			<p>Your browser doesn't support canvas.</p>
+		</canvas>
+	</body>
+</html>
