@@ -1,5 +1,5 @@
 /**
- * jQuery DrawBox Plug-In 0.3
+ * jQuery DrawBox Plug-In 0.4
  *
  * http://github.com/crowdsavings/drawbox
  * http://plugins.jquery.com/project/drawbox
@@ -19,6 +19,8 @@
 		drawbox: function(options)
 		{
 			var defaults = {
+				showClear:  true,
+				clearLabel: 'Clear Canvas'
 			}
 
 			var options = $.extend(defaults, options);
@@ -31,15 +33,22 @@
 
 					if (this.getContext)
 					{
+						var canvas  = this;
 						var context = this.getContext('2d');
 
 						context.underInteractionEnabled = true;
 
 						// Overrides with passed options
-						if (typeof(options.strokeStyle) != "undefined") { context.strokeStyle = options.strokeStyle; }
-						if (typeof(options.lineWidth)   != "undefined") { context.lineWidth   = options.lineWidth;   }
-						if (typeof(options.lineCap)     != "undefined") { context.lineCap     = options.lineCap;     }
-						if (typeof(options.lineJoin)    != "undefined") { context.lineJoin    = options.lineJoin;    }
+						if (typeof(options.strokeStyle) != 'undefined') { context.strokeStyle = options.strokeStyle; }
+						if (typeof(options.lineWidth)   != 'undefined') { context.lineWidth   = options.lineWidth;   }
+						if (typeof(options.lineCap)     != 'undefined') { context.lineCap     = options.lineCap;     }
+						if (typeof(options.lineJoin)    != 'undefined') { context.lineJoin    = options.lineJoin;    }
+						
+						if (options.showClear == true)
+						{
+							$(this).after('<div class="drawbox-clear">' + options.clearLabel + '</div>');
+							clear = true;
+						}
 
 						var drawing = false;
 						var offsetX = $(this).attr('offsetLeft');
@@ -47,33 +56,47 @@
 						var x       = false;
 						var y       = false;
 
-						$(this).mousedown(function(e)
-						{
-							drawingStart(e);
-						});
+						// Mouse events
+						$(this).mousedown(function(e) { drawingStart(e); });
+						$(this).mousemove(function(e) { drawingMove(e);  });
+						$(this).mouseup(  function()  { drawingStop();   });
 
-						$(this).mousemove(function(e)
-						{
-							drawingMove(e);
-						});
-
-						$(this).mouseup(function()
-						{
-							drawingStop();
-						});
+						// Touch events
+						$(this).bind('touchstart',  function(e) { drawingStart(e); });
+						$(this).bind('touchmove',   function(e) { drawingMove(e);  });
+						$(this).bind('touchend',    function(e) { drawingStop(e);  });
+						$(this).bind('touchcancel', function()  { drawingStop();   });
 							
-						function drawingStart(e)
+						// Other events
+						$('.drawbox-clear').click(function(e)
 						{
-							// iPhone/iPad/iPod support
+							context.save();
+							context.beginPath();
+							context.closePath();
+							context.restore();
+							context.clearRect(0, 0, $(canvas).width(), $(canvas).height());
+						});
+
+						function getTouch(e)
+						{
+							// iPhone/iPad/iPod uses event.touches and not the passed event
 							if (typeof(event) != "undefined" && typeof(event.touches) != "undefined")
 							{
 								e = event.touches.item(0);
 							}
 
-							drawing = true;
-
+							// Calculates the X and Y values
 							x = e.clientX - offsetX;
 							y = e.clientY - offsetY;
+
+							return e;
+						}
+
+						function drawingStart(e)
+						{
+							drawing = true;
+
+							e = getTouch(e);
 
 							context.moveTo(x, y);
 						}
@@ -82,17 +105,10 @@
 						{
 							// Keeps iPad from scrolling while drawing
 							e.preventDefault();
-							
-							// iPhone/iPad/iPod support
-							if (typeof(event) != "undefined" && typeof(event.touches) != "undefined")
-							{
-								e = event.touches.item(0);
-							}
-
+						
 							if (drawing == true)
 							{
-								x = e.clientX - offsetX;
-								y = e.clientY - offsetY;
+								e = getTouch(e);
 
 								context.lineTo(x, y);
 								context.stroke();
@@ -107,12 +123,6 @@
 							context.lineTo(x, y);
 							context.stroke();
 						}
-
-						// iPad / Touch System events
-						$(this).bind('touchstart',  function(e) { drawingStart(e); });
-						$(this).bind('touchmove',   function(e) { drawingMove(e);  });
-						$(this).bind('touchend',    function(e) { drawingStop(e);  });
-						$(this).bind('touchcancel', function()  { drawingStop();   });
 					}
 					else
 					{
