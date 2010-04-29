@@ -42,7 +42,7 @@
 
 			return this.each(function()
 			{
-				if (this.nodeName == 'CANVAS')
+				if (this.nodeName == 'CANVAS' || navigator.userAgent.indexOf('MSIE') != -1)
 				{
 					$(this).css('cursor',   'pointer');
 					$(this).attr('onclick', 'function onclick(event) { void 1; }');
