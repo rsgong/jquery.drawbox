@@ -24,7 +24,7 @@
 				lineJoin:      'miter',
 				miterLimit:    10,
 				strokeStyle:   'black',
-				fillStyle:     'white',
+				fillStyle:     'transparent',
 				shadowOffsetX: 0.0,
 				shadowOffsetY: 0.0,
 				shadowBlur:    0.0,
