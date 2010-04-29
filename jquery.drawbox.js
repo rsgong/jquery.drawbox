@@ -24,12 +24,14 @@
 				lineJoin:      'miter',
 				miterLimit:    10,
 				strokeStyle:   'black',
+				fillStyle:     'white',
 				shadowOffsetX: 0.0,
 				shadowOffsetY: 0.0,
 				shadowBlur:    0.0,
 				shadowColor:   'transparent black',
 				showClear:     true,
-				clearLabel:    'Clear Canvas'
+				clearLabel:    'Clear Canvas',
+				clearStyle:    'button' // or 'link'
 			}
 
 			var options = $.extend(defaults, options);
@@ -47,6 +49,8 @@
 						var context = this.getContext('2d');
 						var id      = $(this).attr('id');
 
+						$(this).after('<div id="' + id + '-controls" style="width:' + $(this).width() + 'px"></div>');
+
 						context.underInteractionEnabled = true;
 
 						// Overrides with passed options
@@ -55,6 +59,7 @@
 						context.lineJoin      = options.lineJoin;
 						context.miterLimit    = options.miterLimit;
 						context.strokeStyle   = options.strokeStyle;
+						context.fillStyle     = options.fillStyle;
 						context.shadowOffsetX = options.shadowOffsetX;
 						context.shadowOffsetY = options.shadowOffsetY;
 						context.shadowBlur    = options.shadowBlur;
@@ -62,7 +67,10 @@
 						
 						if (options.showClear == true)
 						{
-							$(this).after('<div id="' + id + '-clear">' + options.clearLabel + '</div>');
+							var clear_tag = (options.clearStyle == 'link' ? 'div' : 'button');
+
+							$('#' + id + '-controls').append('<' + clear_tag + ' id="' + id + '-clear" style="float:right">' + options.clearLabel + '</' + clear_tag + '><br style="clear:both" />');
+
 							clear = true;
 						}
 
@@ -125,12 +133,26 @@
 						function draw(type)
 						{
 							var element = $('#' + data_input);
+							var svg_data = element.val();
+							
+							if (type == 'start')
+							{
+								// Adds the SVG header tags
+								if (svg_data == '')
+								{
+									svg_data = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="' + $('#' + id).width() + '" height="' + $('#' + id).height() + '" version="1.1" xmlns="http://www.w3.org/2000/svg">';
+								}
+								else
+								{
+									svg_data = svg_data.substring(0, svg_data.length - 6);
+								}
+							}
 
 							if (type != 'stop')
 							{
-								if (element.val().length > 0)
+								if (svg_data.length > 0)
 								{
-									element.val(element.val() + ' ');
+									svg_data = svg_data + ' ';
 								}
 
 								if (type == 'start')
@@ -138,13 +160,12 @@
 									prevX = false;
 									prevY = false;
 
-									var command = 'M';
 									context.moveTo(x, y);
+								
+									svg_data = svg_data + '<polyline points="';
 								}
 								else if (type == 'move')
 								{
-									var command = 'L';
-								
 									// If there's no previous increment since it's a .
 									if (prevX == false)
 									{
@@ -156,12 +177,17 @@
 								}
 
 								context.stroke();
-								element.val(element.val() + command + x + ' ' + y);
+								svg_data = svg_data + x + ',' + y + ' ';
 							}
 							else
 							{
 								draw('move');
+
+								// Closes the polyline (with style info) and adds the closing svg tag
+								svg_data = svg_data + '" style="fill:' + context.fillStyle + ';stroke:' + context.strokeStyle + ';stroke-width:' + context.lineWidth + '" /></svg>';
 							}
+
+							element.val(svg_data);
 						}
 
 						function drawingStart(e)
