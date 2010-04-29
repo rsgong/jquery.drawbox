@@ -1,5 +1,5 @@
 /**
- * jQuery DrawBox Plug-In 0.5
+ * jQuery DrawBox Plug-In 0.6
  *
  * http://github.com/crowdsavings/drawbox
  * http://plugins.jquery.com/project/drawbox
