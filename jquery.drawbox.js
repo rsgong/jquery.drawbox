@@ -1,5 +1,5 @@
 /**
- * jQuery DrawBox Plug-In 0.6
+ * jQuery DrawBox Plug-In 1.0
  *
  * http://github.com/crowdsavings/drawbox
  * http://plugins.jquery.com/project/drawbox
@@ -18,20 +18,22 @@
 	{
 		drawbox: function(options)
 		{
+			// Default options
 			var defaults = {
+				// Canvas properties
 				lineWidth:     1.0,
 				lineCap:       'butt',
 				lineJoin:      'miter',
 				miterLimit:    10,
 				strokeStyle:   'black',
-				fillStyle:     'transparent',
+				fillStyle:     'none',
 				shadowOffsetX: 0.0,
 				shadowOffsetY: 0.0,
 				shadowBlur:    0.0,
-				shadowColor:   'transparent black',
+				shadowColor:   'none',
 				// Color selector options
 				colorSelector: false,
-				colors:        [ 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet' ],
+				colors:        [ 'black', 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet' ],
 				// Clearing options
 				showClear:     true,
 				clearLabel:    'Clear Canvas',
@@ -42,6 +44,7 @@
 
 			return this.each(function()
 			{
+				// The IE check is because explorercanvas swaps out the canvas element
 				if (this.nodeName == 'CANVAS' || navigator.userAgent.indexOf('MSIE') != -1)
 				{
 					$(this).css('cursor',   'pointer');
@@ -83,7 +86,7 @@
 									context.strokeStyle = color
 								}
 
-								color_selector = color_selector + '<div style="height:16px;width:16px;background-color:' + color + ';margin:2px;float:left;border:2px solid ' + (i == 0 ? '#fff' : 'transparent') + '"' + (i == 0 ? ' class="selected"' : '') + '></div>';
+								color_selector = color_selector + '<div style="height:16px;width:16px;background-color:' + color + ';margin:2px;float:left;border:2px solid ' + (i == 0 ? '#000' : 'transparent') + '"' + (i == 0 ? ' class="selected"' : '') + '></div>';
 							}
 								
 							$('#' + id + '-controls').append('<div style="float:left" id="' + id + '-colors">' + color_selector + '</div>');
@@ -111,24 +114,25 @@
 						var y       = false;
 
 						// Mouse events
-						$(this).mousedown(function(e) { drawingStart(e); });
-						$(this).mousemove(function(e) { drawingMove(e);  });
-						$(this).mouseup(  function()  { drawingStop();   });
+						$(document).mousedown(function(e) { drawingStart(e); });
+						$(document).mousemove(function(e) { drawingMove(e);  });
+						$(document).mouseup(  function()  { drawingStop();   });
 
 						// Touch events
-						$(this).bind('touchstart',  function(e) { drawingStart(e); });
-						$(this).bind('touchmove',   function(e) { drawingMove(e);  });
-						$(this).bind('touchend',    function(e) { drawingStop(e);  });
-						$(this).bind('touchcancel', function()  { drawingStop();   });
+						$(document).bind('touchstart',  function(e) { drawingStart(e); });
+						$(document).bind('touchmove',   function(e) { drawingMove(e);  });
+						$(document).bind('touchend',    function(e) { drawingStop(e);  });
+						$(document).bind('touchcancel', function()  { drawingStop();   });
 							
-						// Other events
+						// Changing colors
 						$('#' + id + '-colors div').click(function(e)
 						{
 							$('#' + id + '-controls div').css('borderColor', 'transparent').removeClass('selected');
 							$(this).addClass('selected');
-							$(this).css('borderColor', '#fff');
+							$(this).css('borderColor', '#000');
 						});
 
+						// Clearing the canvas
 						$('#' + id + '-clear').click(function(e)
 						{
 							context.save();
@@ -156,9 +160,8 @@
 							}
 
 							// Calculates the X and Y values
-							x = e.clientX - offsetX;
-							y = e.clientY - offsetY;
-
+							x = e.clientX - (offsetX - document.body.scrollLeft);
+							y = e.clientY - (offsetY - document.body.scrollTop);
 							return e;
 						}
 
@@ -182,11 +185,6 @@
 
 							if (type != 'stop')
 							{
-								if (svg_data.length > 0)
-								{
-									svg_data = svg_data + ' ';
-								}
-
 								if (type == 'start')
 								{
 									prevX = false;
@@ -210,7 +208,13 @@
 								}
 
 								context.stroke();
-								svg_data = svg_data + x + ',' + y + ' ';
+
+								if (svg_data.length > 0 && svg_data.substring(svg_data.length - 1) != '"')
+								{
+									svg_data = svg_data + ' ';
+								}
+
+								svg_data = svg_data + x + ',' + y;
 							}
 							else
 							{
