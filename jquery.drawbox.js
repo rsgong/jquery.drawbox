@@ -1,5 +1,5 @@
 /**
- * jQuery DrawBox Plug-In 0.7 
+ * jQuery DrawBox Plug-In 0.8
  *
  * http://github.com/crowdsavings/drawbox
  * http://plugins.jquery.com/project/drawbox
@@ -105,13 +105,18 @@
 						var data_input = id + '-data';
 						$(this).after('<input type="hidden" id="' + data_input + '" name="' + data_input + '" />');
 
-						var drawing = false;
-						var offsetX = $(this).attr('offsetLeft');
-						var offsetY = $(this).attr('offsetTop');
-						var prevX   = false;
-						var prevY   = false;
-						var x       = false;
-						var y       = false;
+						// Defines all our tracking variables
+						var drawing  = false;
+						var height   = $('#' + id).height();
+						var width    = $('#' + id).width();
+						var svg_path = '';
+						var offsetX  = $(this).attr('offsetLeft');
+						var offsetY  = $(this).attr('offsetTop');
+						var inside   = false
+						var prevX    = false;
+						var prevY    = false;
+						var x        = false;
+						var y        = false;
 
 						// Mouse events
 						$(document).mousedown(function(e) { drawingStart(e); });
@@ -167,35 +172,20 @@
 
 						function draw(type)
 						{
-							var element = $('#' + data_input);
-							var svg_data = element.val();
-							
-							if (type == 'start')
-							{
-								// Adds the SVG header tags
-								if (svg_data == '')
-								{
-									svg_data = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="' + $('#' + id).width() + '" height="' + $('#' + id).height() + '" version="1.1" xmlns="http://www.w3.org/2000/svg">';
-								}
-								else
-								{
-									svg_data = svg_data.substring(0, svg_data.length - 6);
-								}
-							}
-
 							if (type != 'stop')
 							{
 								if (type == 'start')
 								{
-									prevX = false;
-									prevY = false;
+									inside = false;
+									prevX  = false;
+									prevY  = false;
 
 									context.beginPath();
 									context.moveTo(x, y);
 								
-									svg_data = svg_data + '<polyline points="';
+									svg_path = '<polyline points="';
 								}
-								else if (type == 'move')
+								else
 								{
 									// If there's no previous increment since it's a .
 									if (prevX == false)
@@ -206,25 +196,43 @@
 
 									context.lineTo(x, y);
 								}
-
+								
 								context.stroke();
 
-								if (svg_data.length > 0 && svg_data.substring(svg_data.length - 1) != '"')
+								if (svg_path.length > 0 && svg_path.substring(svg_path.length - 1) != '"')
 								{
-									svg_data = svg_data + ' ';
+									svg_path = svg_path + ' ';
 								}
+								
+								svg_path = svg_path + x + ',' + y;
 
-								svg_data = svg_data + x + ',' + y;
+								if ((x > 0 && x <= width) && (y > 0 && y <= height))
+								{
+									inside = true;
+								}
 							}
 							else
 							{
 								draw('move');
 
-								// Closes the polyline (with style info) and adds the closing svg tag
-								svg_data = svg_data + '" style="fill:' + context.fillStyle + ';stroke:' + context.strokeStyle + ';stroke-width:' + context.lineWidth + '" /></svg>';
-							}
+								if (inside == true)
+								{
+									// Closes the polyline (with style info) and adds the closing svg tag
+									svg_path = svg_path + '" style="fill:' + context.fillStyle + ';stroke:' + context.strokeStyle + ';stroke-width:' + context.lineWidth + '" /></svg>';
 
-							element.val(svg_data);
+									var element  = $('#' + data_input);
+									var svg_data = element.val();
+									
+									// Adds the opening and closing SVG tags
+									if (svg_data == '')
+									{
+										svg_data = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg width="' + width + '" height="' + height + '" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>';
+									}
+									
+									// Appends the recorded path
+									element.val(svg_data.substring(0, svg_data.length - 6) + svg_path);
+								}
+							}
 						}
 
 						function drawingStart(e)
