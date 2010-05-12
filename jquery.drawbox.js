@@ -237,6 +237,12 @@
 
 						function drawingStart(e)
 						{
+							// Prevent the default action (scrolling) from occurring
+							if (inside == true)
+							{
+								e.preventDefault();
+							}
+
 							drawing = true;
 
 							e = getTouch(e);
@@ -248,8 +254,11 @@
 							
 						function drawingMove(e)
 						{
-							// Keeps iPad from scrolling while drawing
-							e.preventDefault();
+							// Prevent the default action (scrolling) from occurring
+							if (inside == true)
+							{
+								e.preventDefault();
+							}
 						
 							if (drawing == true)
 							{
@@ -257,6 +266,8 @@
 
 								draw('move');
 							}
+
+							return false;
 						}
 
 						function drawingStop()
