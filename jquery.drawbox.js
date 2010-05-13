@@ -106,17 +106,19 @@
 						$(this).after('<input type="hidden" id="' + data_input + '" name="' + data_input + '" />');
 
 						// Defines all our tracking variables
-						var drawing  = false;
-						var height   = $('#' + id).height();
-						var width    = $('#' + id).width();
-						var svg_path = '';
-						var offsetX  = $(this).attr('offsetLeft');
-						var offsetY  = $(this).attr('offsetTop');
-						var inside   = false
-						var prevX    = false;
-						var prevY    = false;
-						var x        = false;
-						var y        = false;
+						var drawing    = false;
+						var height     = $('#' + id).height();
+						var width      = $('#' + id).width();
+						var svg_path   = '';
+						var scrollLeft = 0;
+						var scrollTop  = 0;
+						var offsetX    = $(this).attr('offsetLeft');
+						var offsetY    = $(this).attr('offsetTop');
+						var inside     = false
+						var prevX      = false;
+						var prevY      = false;
+						var x          = false;
+						var y          = false;
 
 						// Mouse events
 						$(document).mousedown(function(e) { drawingStart(e); });
@@ -155,6 +157,14 @@
 							if (typeof(event) != "undefined" && typeof(event.touches) != "undefined")
 							{
 								e = event.touches.item(0);
+							
+								scrollLeft = document.body.scrollLeft;
+								scrollTop  = document.body.scrollTop;
+							}
+							else
+							{
+								scrollLeft = $(document).scrollLeft();
+								scrollTop  = $(document).scrollTop();
 							}
 							
 							// Tracks last position to handle dots (as opposed to lines)
@@ -165,8 +175,8 @@
 							}
 
 							// Calculates the X and Y values
-							x = e.clientX - (offsetX - $(document).scrollLeft());
-							y = e.clientY - (offsetY - $(document).scrollTop());
+							x = e.clientX - (offsetX - scrollLeft);
+							y = e.clientY - (offsetY - scrollTop);
 							return e;
 						}
 
