@@ -165,8 +165,8 @@
 							}
 
 							// Calculates the X and Y values
-							x = e.clientX - (offsetX - document.body.scrollLeft);
-							y = e.clientY - (offsetY - document.body.scrollTop);
+							x = e.clientX - (offsetX - $(document).scrollLeft());
+							y = e.clientY - (offsetY - $(document).scrollTop());
 							return e;
 						}
 
