@@ -40,7 +40,7 @@
 				clearStyle:    'button' // or 'link'
 			}
 
-			var options = $.extend(defaults, options);
+			options = $.extend(defaults, options);
 
 			return this.each(function()
 			{
@@ -126,7 +126,7 @@
 						// Touch events
 						$(document).bind('touchstart',  function(e) { drawingStart(e); });
 						$(document).bind('touchmove',   function(e) { drawingMove(e);  });
-						$(document).bind('touchend',    function(e) { drawingStop(e);  });
+						$(document).bind('touchend',    function()  { drawingStop();   });
 						$(document).bind('touchcancel', function()  { drawingStop();   });
 							
 						// Changing colors
