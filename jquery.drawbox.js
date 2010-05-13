@@ -1,5 +1,5 @@
 /**
- * jQuery DrawBox Plug-In 0.8
+ * jQuery DrawBox Plug-In 1.0
  *
  * http://github.com/crowdsavings/drawbox
  * http://plugins.jquery.com/project/drawbox
@@ -228,7 +228,7 @@
 								if (inside == true)
 								{
 									// Closes the polyline (with style info) and adds the closing svg tag
-									svg_path = svg_path + '" style="fill:' + context.fillStyle + ';stroke:' + context.strokeStyle + ';stroke-width:' + context.lineWidth + '" /></svg>';
+									svg_path = svg_path + '" style="fill:' + options.fillStyle + ';stroke:' + context.strokeStyle + ';stroke-width:' + context.lineWidth + '" /></svg>';
 
 									var element  = $('#' + data_input);
 									var svg_data = element.val();
