@@ -112,8 +112,6 @@
 						var svg_path   = '';
 						var scrollLeft = 0;
 						var scrollTop  = 0;
-						var offsetX    = $(this).attr('offsetLeft');
-						var offsetY    = $(this).attr('offsetTop');
 						var inside     = false
 						var prevX      = false;
 						var prevY      = false;
@@ -175,8 +173,8 @@
 							}
 
 							// Calculates the X and Y values
-							x = e.clientX - (offsetX - scrollLeft);
-							y = e.clientY - (offsetY - scrollTop);
+							x = e.pageX - $(canvas).position().left;
+							y = e.pageY - $(canvas).position().top;
 							return e;
 						}
 
@@ -215,6 +213,9 @@
 								}
 								
 								svg_path = svg_path + x + ',' + y;
+						
+								height = $('#' + id).height();
+								width  = $('#' + id).width();
 
 								if ((x > 0 && x <= width) && (y > 0 && y <= height))
 								{
@@ -232,7 +233,7 @@
 
 									var element  = $('#' + data_input);
 									var svg_data = element.val();
-									
+
 									// Adds the opening and closing SVG tags
 									if (svg_data == '')
 									{
